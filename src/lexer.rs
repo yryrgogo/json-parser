@@ -2,7 +2,7 @@ use crate::token::{Token, TokenType};
 
 pub struct Lexer {
 	input: Vec<char>,
-	position: usize,
+	next_position: usize,
 }
 
 impl Lexer {
@@ -10,12 +10,12 @@ impl Lexer {
 		let chars = input.chars().collect::<Vec<char>>();
 		Lexer {
 			input: chars,
-			position: 0,
+			next_position: 0,
 		}
 	}
 
 	pub fn next_token(&mut self) -> Option<Token> {
-		if let Some(ch) = self.next_char() {
+		if let Some(ch) = self.read_char() {
 			let token = match ch {
 				'{' => Token::new(ch.to_string(), TokenType::LBRACE),
 				'}' => Token::new(ch.to_string(), TokenType::RBRACE),
@@ -24,8 +24,7 @@ impl Lexer {
 				'"' => {
 					let mut values: Vec<char> = vec![];
 					loop {
-						self.position += 1;
-						if let Some(value_char) = self.next_char() {
+						if let Some(value_char) = self.read_char() {
 							if value_char == '"' {
 								break;
 							} else {
@@ -40,7 +39,6 @@ impl Lexer {
 				}
 				_ => todo!("{}", ch),
 			};
-			self.position += 1;
 			Some(token)
 		} else {
 			println!("end");
@@ -48,12 +46,17 @@ impl Lexer {
 		}
 	}
 
-	pub fn next_char(&self) -> Option<char> {
-		Some(*self.input.get(self.position).unwrap())
+	pub fn read_char(&mut self) -> Option<char> {
+		if self.next_position >= self.input.len() {
+			()
+		}
+		let ch = Some(*self.input.get(self.next_position).unwrap());
+		self.next_position += 1;
+		ch
 	}
 
 	pub fn peek_char(&self) -> Option<&char> {
-		self.input.get(self.position + 1)
+		self.input.get(self.next_position + 1)
 	}
 }
 
