@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Token {
 	pub literal: String,
 	pub token_type: TokenType,
