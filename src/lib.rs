@@ -1,7 +1,10 @@
+mod error;
 mod lexer;
 mod parser;
 mod token;
 mod value;
+
+use error::JsonError;
 
 use crate::lexer::Lexer;
 

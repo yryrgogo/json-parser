@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
 
-#[derive(Debug, PartialEq)]
+use crate::JsonResult;
+
+#[derive(Debug, PartialEq, Clone)]
 pub enum JsonValue {
     String(String),
     Int(i64),
@@ -24,9 +26,15 @@ impl JsonValue {
         JsonValue::Array(Vec::new())
     }
 
-    pub fn put<T>(&mut self, key: &str, value: T) -> JsonValue {
+    pub fn put<T>(&mut self, key: &str, value: T) -> JsonResult<()>
+    where
+        T: Into<JsonValue>,
+    {
         match *self {
-            JsonValue::Object(btree) => btree.insert(key, value),
+            JsonValue::Object(ref mut btree) => {
+                btree.insert(key.into(), value.into());
+                Ok(())
+            }
             _ => todo!(),
         }
     }
