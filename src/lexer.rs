@@ -68,16 +68,32 @@ mod tests {
 
 	#[test]
 	fn test_next_token() {
-		let tests: Vec<TestInput> = vec![TestInput {
-			input: String::from(r#"{"key":"0"}"#),
-			expected_tokens: vec![
-				Token::new(String::from("{"), TokenType::LBRACE),
-				Token::new(String::from("key"), TokenType::VALUE),
-				Token::new(String::from(":"), TokenType::COLON),
-				Token::new(String::from("0"), TokenType::VALUE),
-				Token::new(String::from("}"), TokenType::RBRACE),
-			],
-		}];
+		let tests: Vec<TestInput> = vec![
+			TestInput {
+				input: String::from(r#"{"key":"0"}"#),
+				expected_tokens: vec![
+					Token::new(String::from("{"), TokenType::LBRACE),
+					Token::new(String::from("key"), TokenType::VALUE),
+					Token::new(String::from(":"), TokenType::COLON),
+					Token::new(String::from("0"), TokenType::VALUE),
+					Token::new(String::from("}"), TokenType::RBRACE),
+				],
+			},
+			TestInput {
+				input: String::from(r#"{"k1":"0","k2":"91234"}"#),
+				expected_tokens: vec![
+					Token::new(String::from("{"), TokenType::LBRACE),
+					Token::new(String::from("k1"), TokenType::VALUE),
+					Token::new(String::from(":"), TokenType::COLON),
+					Token::new(String::from("0"), TokenType::VALUE),
+					Token::new(String::from(","), TokenType::COMMA),
+					Token::new(String::from("k2"), TokenType::VALUE),
+					Token::new(String::from(":"), TokenType::COLON),
+					Token::new(String::from("91234"), TokenType::VALUE),
+					Token::new(String::from("}"), TokenType::RBRACE),
+				],
+			},
+		];
 
 		for test in tests {
 			let mut lexer = Lexer::new(test.input);
