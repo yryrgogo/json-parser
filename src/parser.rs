@@ -55,6 +55,7 @@ impl Parser {
     }
 
     fn parse_value(&self, token: Token) {
+        let mut is_num = true;
         let mut signed = false;
         let mut is_float = false;
 
@@ -65,6 +66,7 @@ impl Parser {
                         signed = true;
                         continue;
                     }
+                    is_num = false;
                     break;
                 }
                 '.' => {
@@ -72,6 +74,43 @@ impl Parser {
                 }
                 _ => {
                     println!("{} {:b}", u32::from(c), u32::from(c));
+                    let c_u32 = u32::from(c);
+                    if c_u32 >= 48 && c_u32 <= 57 {
+                        continue;
+                    } else {
+                        is_num = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if is_num {
+            if signed {
+                if is_float {
+                    let result = token.literal.parse::<f64>().unwrap_or_else(|_| {
+                        panic!("String を float64 に parse できませんでした。")
+                    });
+                    return;
+                } else {
+                    let result = token
+                        .literal
+                        .parse::<i64>()
+                        .unwrap_or_else(|_| panic!("String を int64 に parse できませんでした。"));
+                    return;
+                }
+            } else {
+                if is_float {
+                    let result = token.literal.parse::<f64>().unwrap_or_else(|_| {
+                        panic!("String を float64 に parse できませんでした。")
+                    });
+                    return;
+                } else {
+                    let result = token
+                        .literal
+                        .parse::<u64>()
+                        .unwrap_or_else(|_| panic!("String を uint64 に parse できませんでした。"));
+                    return;
                 }
             }
         }
@@ -85,8 +124,19 @@ mod tests {
     #[test]
     fn test_parse_value() {
         let input = "".to_string();
+        let test_tokens: Vec<Token> = vec![
+            Token::new("0".to_string(), TokenType::VALUE),
+            Token::new("-1".to_string(), TokenType::VALUE),
+            Token::new("2.345".to_string(), TokenType::VALUE),
+            Token::new("678.90123456789".to_string(), TokenType::VALUE),
+            Token::new("-0.123456789".to_string(), TokenType::VALUE),
+        ];
 
-        let mut lexer = Lexer::new(input);
-        // Parser::new()
+        let parser = Parser::new(input);
+
+        for token in test_tokens {
+            println!("aaaaaaaa");
+            parser.parse_value(token);
+        }
     }
 }
