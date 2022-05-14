@@ -15,6 +15,8 @@ impl Lexer {
 	}
 
 	pub fn next_token(&mut self) -> Option<Token> {
+		self.skip_whitespace();
+
 		if let Some(ch) = self.read_char() {
 			let token = match ch {
 				'{' => Token::new(ch.to_string(), TokenType::LBRACE),
@@ -37,7 +39,7 @@ impl Lexer {
 					let value: String = values.iter().collect();
 					Token::new(value, TokenType::VALUE)
 				}
-				_ => todo!("{}", ch),
+				_ => todo!("position: {}, unknown char: {}", self.next_position, ch),
 			};
 			Some(token)
 		} else {
@@ -55,8 +57,26 @@ impl Lexer {
 		ch
 	}
 
+	pub fn next_char(&self) -> Option<&char> {
+		self.input.get(self.next_position)
+	}
+
 	pub fn peek_char(&self) -> Option<&char> {
 		self.input.get(self.next_position + 1)
+	}
+
+	pub fn skip_whitespace(&mut self) {
+		loop {
+			if let Some(ch) = self.next_char() {
+				if ch == &' ' {
+					self.next_position += 1;
+				} else {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
 	}
 }
 
@@ -84,6 +104,20 @@ mod tests {
 			},
 			TestInput {
 				input: String::from(r#"{"k1":"0","k2":"91234"}"#),
+				expected_tokens: vec![
+					Token::new(String::from("{"), TokenType::LBRACE),
+					Token::new(String::from("k1"), TokenType::VALUE),
+					Token::new(String::from(":"), TokenType::COLON),
+					Token::new(String::from("0"), TokenType::VALUE),
+					Token::new(String::from(","), TokenType::COMMA),
+					Token::new(String::from("k2"), TokenType::VALUE),
+					Token::new(String::from(":"), TokenType::COLON),
+					Token::new(String::from("91234"), TokenType::VALUE),
+					Token::new(String::from("}"), TokenType::RBRACE),
+				],
+			},
+			TestInput {
+				input: String::from(r#"   {  "k1" : "0" , "k2" : "91234" }  "#),
 				expected_tokens: vec![
 					Token::new(String::from("{"), TokenType::LBRACE),
 					Token::new(String::from("k1"), TokenType::VALUE),
